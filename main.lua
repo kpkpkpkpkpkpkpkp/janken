@@ -21,12 +21,13 @@ function love.update(dt)
 		love.event.quit()
 	else end
 end
+
 function love.draw()
 	love.graphics.setCanvas(canvas)
 
-	love.graphics.setColor(50,0,133)
+	-- love.graphics.setColor(50/255,0,133/255)
 	love.graphics.rectangle("fill",0,0,wwidth,wheight)
-	love.graphics.setColorMode("replace")
+	-- love.graphics.setColorMode("replace")
 	
 	love.graphics.draw(bg)
 	if state=="menu" then menu.draw()

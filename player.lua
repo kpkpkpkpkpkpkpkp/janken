@@ -32,13 +32,13 @@ function player.update(dt,state)
 	elseif love.keyboard.isDown('q') then hand.switch("kachi")
 	elseif love.keyboard.isDown('e') then hand.switch("make")
 	else 
-		if state=="achimuite" then 
-			hand.switch("shita")
-			player.curr=4
-		else
-			hand.switch("guu")
-			player.curr=0
-		end
+		-- if state=="achimuite" then 
+		-- 	hand.switch("shita")
+		-- 	player.curr=4
+		-- else
+		-- 	hand.switch("guu")
+		-- 	player.curr=0
+		-- end
 	end
 end
 function player.draw()

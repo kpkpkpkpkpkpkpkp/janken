@@ -44,3 +44,20 @@ end
 function menu.gs()
 	return menu.gamestate
 end
+
+howtoplay = {
+	"z: guu",
+	"x: kii",
+	"c: paa",
+
+	"w: up",
+	"a: left",
+	"s: down",
+	"d: right",
+
+	"guu beats kii, kii beats paa, paa beats guu.",
+	"if you win janken, match the opponent's direction to win the round. If they win, try not to look the same direction",
+	"if you tie janken, play again until someone wins.",
+
+	"speed goes up every round. Try to get to ten points!"
+}

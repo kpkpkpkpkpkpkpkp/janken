@@ -18,14 +18,28 @@ function hand.load()
 
 	hand.curr=hand.guu
 	hand.a_curr=hand.guu
+	hand.interval = 0.5
 end
-function hand.update(dt)
+function hand.update(dt,state,beat)
+	hand.interval = hand.interval - dt
+	if (beat == 1 or beat == 3) and hand.interval < 024 then 
+		hand.bump(0)
+		if hand.interval < 0 then
+			hand.bump(4)
+			hand.interval = 0.5
+		end
+	else
+		
+		hand.bump(4)
+	end
 end
+
 function hand.draw(x,y,d)
 	osx=0
 	osy=0
-	if d == "aite" then love.graphics.drawq(hand.a_sheet,hand.a_curr,x,y-hand.yb,0,-1,1,osx,osy)
-	else love.graphics.drawq(hand.p_sheet,hand.curr,x,y-hand.yb,0,1,1,osx,osy)
+	if d == "aite" then love.graphics.draw(hand.a_sheet,hand.a_curr,x,y-hand.yb,0,-1,1,osx,osy)
+	else 
+		love.graphics.draw(hand.p_sheet,hand.curr,x,y-hand.yb,0,1,1,osx,osy)
 	end
 end
 
@@ -52,6 +66,15 @@ function hand.switch(sign,ap)
 end
 
 function hand.bump(y)
+	--y here is y coord to bump to
 	hand.yb=y
+end
+
+function hand.winningpair(played)
+	if played==0 then 
+		return 2	--janken loop, paa beats guu
+	elseif played <= 2 then return played +1
+	elseif played>2 then return played -- achi loop (matching direction wins)
+	end
 end
 

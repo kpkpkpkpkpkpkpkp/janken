@@ -8,10 +8,11 @@ function janken.load()
 	love.graphics.newFont()
 
 	janken.text={}
-	janken.speed=2
-	janken.interval=0
+	janken.speed=0.5
+	janken.interval=janken.speed
+	janken.roundinterval=janken.speed*4
 	janken.beat=0
-
+	janken.round=0
 
 	janken.sheet=love.graphics.newImage("/res/textures/text.png")
 	janken.bakudan=love.graphics.newImage("/res/textures/textbg.png")
@@ -46,22 +47,102 @@ function janken.load()
 
 	janken.saishyoguu(dt)
 	janken.adv=true
+	janken.laststate=janken.state
 end
-function janken.update(dt)
-	aite.update(dt,janken.state,janken.beat)
-	player.update(dt,janken.state)
-	janken.interval = janken.interval + dt
 
-	if janken.state ~= "make" and janken.state ~= "kachi" then 
-		if janken.interval > 0.5 then
-			if janken.beat<3 then 
+function love.keyreleased(key)
+	if key == 'space' then 
+		if janken.state ~= 'pause' then
+			janken.laststate = janken.state
+			janken.state = "pause"
+		else		
+			janken.state = janken.laststate
+		end
+	end
+end
+
+function janken.update(dt)
+	
+	
+
+	if janken.state ~= 'pause' then
+		aite.update(dt,janken.state,janken.beat)
+		player.update(dt,janken.state)
+		janken.interval = janken.interval - dt
+		janken.roundinterval=janken.roundinterval - dt
+		
+		if janken.state ~= "make" and janken.state ~= "kachi" then 
+			if janken.interval < 0 then
+				--After sai-shyou-guu, 
+				--Every four beats is a state check. 
+				--We can do 'beats' and 'rounds', a round being four beats.
+				--decisions for the aite move are made at the beginning of the round, 
+				--and they'll have tells based on their next move
+				--they might throw a tiny bit early, and might change their play.
+
+				--the following are the events that will happen at each beat, in order.
+
+				-- sai - FX - bump
+				-- shyou
+				-- guu - FX - bump
+				--
+
+				-- jan - FX - bump
+				-- ken
+				-- pon - FX - bump
+				--
+
+				-- achi - FX - bump
+				-- muite
+				-- hoi - FX - bump
+				--
+
+				--OR
+
+				-- ai - FX - bump
+				-- ko - FX - bump
+				-- deshyou - FX - bump
+				--
+
+				-- after aiko, do more 'jankenpon' checks, except further aikos repeat until one player wins.
+
+				-- If there is a win, stop here and click before continue?
+
 				janken.beat=janken.beat+1 
-				
-				if janken.beat==2 then 
-					if janken.state=="janken" then
+				if janken.beat < 4 then
+					--anything that happens during progress
+					if janken.beat == 0 then
+						if janken.adv and janken.continue then
+							aite.mood("cry")
+						elseif not janken.adv and janken.continue then
+							aite.mood("happy")
+						end
+
+					end
+					if janken.beat == 1 or (janken.state == 'saishyo' and janken.beat == 3) then
+						janken.count:play()
+						--bump and play sound
+					elseif janken.beat == 3 then 
+						janken.dasu:play()
+					end
+
+				else --janken.beat == 4
+					janken.round = janken.round + 1
+					janken.beat = 0
+
+					if janken.state=="janken" or janken.state == 'aiko' then
+						--first check
 						if aite.move() ~= player.move() then
 							janken.continue=true 
-							if ((aite.move() + player.move())%2)==0 then
+							if player.move() > 2 or player.move() < 0 then 
+								--auto lose if you throw a direction
+								aite.score=aite.score+1 
+								janken.continue=true
+								janken.adv=false
+								janken.state = 'batsu'
+								aite.mood("happy") 
+
+							elseif ((aite.move() + player.move())%2)==0 then
 								if player.move()>aite.move() then
 									janken.adv=true
 									aite.mood("cry")
@@ -76,48 +157,83 @@ function janken.update(dt)
 									janken.adv=false
 									aite.mood("happy") end 
 							end
-						else janken.continue=false end
+						else 
+							janken.continue=false 
+							janken.state = 'aiko' 
+						end
 					elseif janken.state=="achimuite" then
-						if aite.move() == player.move() then
-							if janken.adv then player.score=player.score+1
-							else aite.score=aite.score+1 end
+						--second check
+						if player.move() > 6 or player.move() < 3 then
+							--auto lose if you don't throw a direction
+							aite.score=aite.score+1 
 							janken.continue=true
-						else janken.continue=false end
+							janken.adv=false
+							janken.state = 'batsu'
+							aite.mood("happy") 
+						elseif aite.move() == player.move() then
+							if janken.adv then 
+								--player advantage, win
+								player.score=player.score+1
+							else 
+								--aite advantage, lose
+								aite.score=aite.score+1 
+							end
+							--round end
+							janken.continue=true
+						else 
+							--no winner, start over
+							janken.continue=false 
+						end
 					end
+					janken.gamestate(dt) 
+					janken.roundinterval=janken.speed*4
 				end
-			else 
-				janken.beat=0 
-				
-				janken.gamestate(dt) 
-			end
-			janken.count:play()
-			--janken.sfx(janken.beat)
 
-			janken.interval=0
+				janken.interval=janken.speed
+			end
+		else 
+			--in kachimake
+			janken.interval=janken.speed
+			janken.roundinterval=janken.speed*4
+			if janken.state == 'kachi' then
+				aite.mood("cry")
+			elseif janken.state == 'make' then
+				aite.mood("happy")
+				--make him giggle too, bump his face
+			end
+			if love.keyboard.isDown('return') then 
+				janken.gamestate(dt) 
+				janken.state="saishyo"
+				janken.speed = janken.speed-0.03
+			end
 		end
-	else 
-		if love.keyboard.isDown('z') then janken.gamestate(dt) end
 	end
 end
 
 function janken.draw()
 	local xoff=114
 	aite.draw()
+	if (janken.state == 'janken' 
+	or janken.state == 'aiko' 
+	or janken.state == 'achimuite') 
+	and janken.beat == 3 then
+		
+		love.graphics.draw(janken.bakudan,172,158)
+	end
 	player.draw()
-	local beats = janken.beat+1
-	for i=1,3 do
-		if beats < 4 then love.graphics.drawq(janken.sheet,janken.text[i],
-			xoff+((i-1)*32)
-			,10) end
-		if i == beats then break end
+	for i=1,4 do
+		if i <= janken.beat then
+			love.graphics.draw(janken.sheet,janken.text[i],xoff+((i-1)*32),10) 
+		end
 	end
 	local x,y=160,120
+
 	if janken.state=="kachi" then
-		love.graphics.drawq(janken.sheet,janken.ka,x,y)
-		love.graphics.drawq(janken.sheet,janken.chi,x+32,y)
+		love.graphics.draw(janken.sheet,janken.ka,x,y)
+		love.graphics.draw(janken.sheet,janken.chi,x+32,y)
 	elseif janken.state=="make" then
-		love.graphics.drawq(janken.sheet,janken.ma,x,y)
-		love.graphics.drawq(janken.sheet,janken.ke,x+32,y)
+		love.graphics.draw(janken.sheet,janken.ma,x,y)
+		love.graphics.draw(janken.sheet,janken.ke,x+32,y)
 	end
 
 	love.graphics.print(aite.score,32,12)
@@ -128,26 +244,28 @@ end
 function janken.db()
 	local yoff=30
 	love.graphics.print("state " .. janken.state,0,yoff)
-	love.graphics.print("beat " .. janken.beat,0,yoff+10)
+	love.graphics.print("beat " .. janken.beat .. ' round ' .. janken.round,0,yoff+10)
 	if janken.adv then love.graphics.print("advantage true",0,yoff+20)
 	else love.graphics.print("advantage false",0,yoff+20) end
 	love.graphics.print("interval " .. janken.interval,0,yoff+30)
-	if janken.continue then love.graphics.print("continue true",0,yoff+40)
-	else love.graphics.print("continue false",0,yoff+40) end
+	love.graphics.print("rnd intr " .. janken.roundinterval,0,yoff+40)
+	if janken.continue then love.graphics.print("continue true",0,yoff+50)
+	else love.graphics.print("continue false",0,yoff+50) end
+	love.graphics.print("pmove "..player.move(),0,yoff+60)
+	love.graphics.print("amove "..aite.move().."pick "..aite.picked,0,yoff+70)
 end
 
---runs at the end of a measure
+--runs at the end of a round
 function janken.gamestate(dt)
-	aite.mood("def")
 	if janken.state=="saishyo" then 
 		janken.jankenpon(dt) 
-	elseif janken.state=="janken" then
+	elseif janken.state =="janken" or janken.state == 'aiko' then
 		if janken.continue then
 			janken.achimuitehoi(dt)
 		else
 			janken.aikodeshyo(dt)
 		end
-	elseif janken.state=="achimuite" then
+	elseif janken.state=="achimuite" or janken.state == 'batsu' then
 		if janken.continue then
 			if janken.adv then
 				janken.state="kachi"
@@ -161,27 +279,22 @@ function janken.gamestate(dt)
 		janken.saishyoguu(dt)
 	end
 end
-function janken.sfx(beat)
-	if beat==2 then
-		janken.dasu:play()
-	else
-		janken.count:play()
-	end
-end
 
 function janken.saishyoguu(dt)
-	janken.text = {janken.sai,janken.shyo,janken.guu}
+	aite.mood("def")
+	janken.text = {janken.sai,janken.shyo,janken.guu,''}
 	janken.state="saishyo"
 end
 function janken.jankenpon(dt)
-	janken.text = {janken.jan,janken.ken,janken.pon}
+	janken.text = {janken.jan,janken.ken,janken.pon,''}
 	janken.state="janken"
 end
 function janken.aikodeshyo(dt)
-	janken.text = {janken.ai,janken.ko,janken.deshyo}
+	janken.text = {janken.ai,janken.ko,janken.deshyo,''}
+	janken.state = 'aiko'
 end
 function janken.achimuitehoi(dt)
-	janken.text = {janken.achi,janken.muite,janken.hoi}
+	janken.text = {janken.achi,janken.muite,janken.hoi,''}
 	janken.state = "achimuite"
 end
 
