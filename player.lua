@@ -4,43 +4,53 @@ function player.load()
 	player.score=0
 	hand.load()
 	player.curr=0
+	player.picked=false
 end
-function player.update(dt,state)
-	if love.keyboard.isDown('a') then 
+
+function player.reset()
+	player.score=0
+	player.curr=0
+	player.picked=false
+end
+
+function player.keypressed(key, scancode, isrepeat)
+	if key=='a' then 
 		hand.switch("hidari")
 		player.curr = 3
-	elseif love.keyboard.isDown('s') then 
+		if player.picked then player.curr = -1 else player.picked=true end
+	elseif key=='s' then 
 		hand.switch("shita")
 		player.curr = 4
-	elseif love.keyboard.isDown('d') then 
+		if player.picked then player.curr = -1 else player.picked=true end
+	elseif key=='d' then 
 		hand.switch("migi")
 		player.curr = 5
-	elseif love.keyboard.isDown('w') then 
+		if player.picked then player.curr = -1 else player.picked=true end
+	elseif key=='w' then 
 		hand.switch("ue")
 		player.curr = 6
-
-	elseif love.keyboard.isDown('z') then 
+		if player.picked then player.curr = -1 else player.picked=true end
+	elseif key=='z' then 
 		hand.switch("guu")
 		player.curr=0
-	elseif love.keyboard.isDown('x') then 
+		if player.picked then player.curr = -1 else player.picked=true end
+	elseif key=='x' then 
 		hand.switch("kii")
 		player.curr=1
-	elseif love.keyboard.isDown('c') then 
+		if player.picked then player.curr = -1 else player.picked=true end
+	elseif key=='c' then 
 		hand.switch("paa")
 		player.curr=2
-
-	elseif love.keyboard.isDown('q') then hand.switch("kachi")
-	elseif love.keyboard.isDown('e') then hand.switch("make")
+		if player.picked then player.curr = -1 else player.picked=true end
+	elseif key=='q' then hand.switch("kachi")
+	elseif key=='e' then hand.switch("make")
 	else 
-		-- if state=="achimuite" then 
-		-- 	hand.switch("shita")
-		-- 	player.curr=4
-		-- else
-		-- 	hand.switch("guu")
-		-- 	player.curr=0
-		-- end
 	end
 end
+
+function player.update(dt,state)
+end
+
 function player.draw()
 	hand.draw(172,158)
 end

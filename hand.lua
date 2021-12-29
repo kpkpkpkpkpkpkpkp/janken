@@ -20,6 +20,7 @@ function hand.load()
 	hand.a_curr=hand.guu
 	hand.interval = 0.5
 end
+
 function hand.update(dt,state,beat)
 	hand.interval = hand.interval - dt
 	if (beat == 1 or beat == 3) and hand.interval < 024 then 
@@ -76,5 +77,16 @@ function hand.winningpair(played)
 	elseif played <= 2 then return played +1
 	elseif played>2 then return played -- achi loop (matching direction wins)
 	end
+end
+
+function hand.keytotext(i)
+	if i== 0 then return "guu"end
+	if i== 1 then return "kii"end
+	if i== 2 then return "paa"end
+	if i== 3 then return "hidari"end
+	if i== 4 then return "shita"end
+	if i== 5 then return "migi"end
+	if i== 6 then return "ue"end
+	if i<0 or i>6 then return "nil" end
 end
 
