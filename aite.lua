@@ -4,31 +4,32 @@ aite={}
 --That will have tells for player advantage, and be random for disadvantage
 --This gives the player only a 25% chance of losing in disadvantage unless they mess up
 --since it is going to start moving very fast, the challenge will become not messing up rather than reading the tell
-aitsura={
+aite.aitsura={
 	{
 		body=love.graphics.newImage("res/textures/bigbluebody.png"),
 		faces=love.graphics.newImage("res/textures/faces.png"),
 		stats={guu=70,kii=20,paa=10},
 		firstto=3
-	},
-	{
-		body=love.graphics.newImage("res/textures/bigredbody.png"),
-		faces=love.graphics.newImage("res/textures/BlueFaces.png"),
-		stats={guu=25,kii=50,paa=25},
-		firstto=5
-	},
-	{
-		body=love.graphics.newImage("res/textures/bigpurplebody.png"),
-		faces=love.graphics.newImage("res/textures/YellowFaces.png"),
-		stats={guu=30,kii=30,paa=40},
-		firstto=7
-	},
-	{
-		body=love.graphics.newImage("res/textures/bigblue2body.png"),
-		faces=love.graphics.newImage("res/textures/faces2.png"),
-		stats={guu=34,kii=33,paa=33},
-		firstto=10
 	}
+	-- ,
+	-- {
+	-- 	body=love.graphics.newImage("res/textures/bigredbody.png"),
+	-- 	faces=love.graphics.newImage("res/textures/BlueFaces.png"),
+	-- 	stats={guu=25,kii=50,paa=25},
+	-- 	firstto=5
+	-- },
+	-- {
+	-- 	body=love.graphics.newImage("res/textures/bigpurplebody.png"),
+	-- 	faces=love.graphics.newImage("res/textures/YellowFaces.png"),
+	-- 	stats={guu=30,kii=30,paa=40},
+	-- 	firstto=7
+	-- },
+	-- {
+	-- 	body=love.graphics.newImage("res/textures/bigblue2body.png"),
+	-- 	faces=love.graphics.newImage("res/textures/faces2.png"),
+	-- 	stats={guu=34,kii=33,paa=33},
+	-- 	firstto=10
+	-- }
 }
 
 
@@ -36,7 +37,7 @@ function aite.load()
 	aite.score=0
 
 	aite.aitsucount=1
-	aite.aitsu=aitsura[aite.aitsucount]
+	aite.aitsu=aite.aitsura[aite.aitsucount]
 
 	aite.dasu=love.audio.newSource("res/audio/sfx/dasu.wav","static")
 
@@ -56,7 +57,7 @@ function aite.reset()
 	aite.score=0
 
 	aite.aitsucount=1
-	aite.aitsu=aitsura[aite.aitsucount]
+	aite.aitsu=aite.aitsura[aite.aitsucount]
 
 	aite.face=aite.faceDef
 	aite.interval=0
@@ -68,7 +69,10 @@ end
 function aite.next()
 	aite.score=0
 	aite.aitsucount=aite.aitsucount+1
-	aite.aitsu=aitsura[aite.aitsucount]
+	if aite.aitsucount > #aite.aitsura then
+		return nil
+	end
+	aite.aitsu=aite.aitsura[aite.aitsucount]
 	aite.face=aite.faceDef
 	aite.interval=0
 	aite.curr=0

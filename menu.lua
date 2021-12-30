@@ -6,14 +6,14 @@ function menu.load()
 	menu.tic=love.audio.newSource("res/audio/sfx/menuclick.wav","static")
 	menu.start=love.audio.newSource("res/audio/sfx/gong_01.ogg","static")
 	menu.open=love.audio.newSource("res/audio/sound 21.ogg","static")
-	menu.open:play()
 	
-	menu.bg=love.graphics.newImage("res/textures/title.png")
 	menu.select=love.graphics.newImage("res/textures/tilde.png")
 	menu.ys=22
-	menu.listop={"play","option","quit"}
+	menu.listop={"play","controlls","quit"}
 	menu.curr=1
 	menu.gamestate="menu"
+	menu.showcontrolls = false
+	menu.open:play()
 end
 
 function menu.update(dt)
@@ -23,24 +23,41 @@ function menu.update(dt)
 end
 
 function menu.draw()
-	love.graphics.draw(menu.bg)
 	love.graphics.draw(menu.select,204,menu.ys)
 end
 
-function love.keypressed(key,scancode,isrepeat)
-	player.keypressed(key,scancode,isrepeat)
+function menu.keypressed(key,scancode,isrepeat)
 	if key == 'up' then 
 		menu.curr=menu.curr-1	
 		menu.tic:play()
 	elseif key == 'down' then
 		menu.curr=menu.curr+1
 		menu.tic:play()
-	end
+	elseif key == "return" then
+		if menu.showcontrolls == true then
+			menu.tic:play()
+			screens.changescreen('menu')
+			menu.gamestate = 'menu'
+			state = 'menu'
+			menu.showcontrolls = false 
+		else
+			menu.gamestate=menu.listop[menu.curr]
+			if menu.gamestate == 'play' then
+				screens.changescreen('janken') 
+				menu.start:play() 
 
-	if key =="return" then
-		menu.gamestate=menu.listop[menu.curr]
-		if menu.gamestate=='play' then 
-			menu.start:play() 
+			elseif menu.gamestate == 'controlls' and menu.showcontrolls == false then
+				menu.showcontrolls = true
+				screens.changescreen('controlls')
+			end
+		end
+	elseif key == 'escape' then
+		if menu.showcontrolls == true then
+			menu.tic:play()
+			screens.changescreen('menu')
+			menu.gamestate = 'menu'
+			state = 'menu'
+			menu.showcontrolls = false 
 		end
 	end
 end
@@ -48,7 +65,7 @@ end
 function menu.choice(ch)
 	if ch=="play" then
 		menu.ys=22
-	elseif ch=="option" then
+	elseif ch=="controlls" then
 		menu.ys=56
 	elseif ch=="quit" then
 		menu.ys=84

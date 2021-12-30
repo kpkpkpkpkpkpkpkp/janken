@@ -1,5 +1,7 @@
 JAN KEN PON ver 0.1
 
+Play at: https://kpkpkpkpkpkpkpkp.github.io/janken/janken-web/janken.html
+
 Controlls:
 z - guu (Rock)
 x - kii (Scisrs)

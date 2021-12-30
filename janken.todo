@@ -1,9 +1,17 @@
 
-☐ need a final winning screen (trophy?)
-☐ make a game over screen
-☐ Change "Option" to "how to play"
+REMAINING
+✔ Set up win/fail screens @done(21-12-30 13:05)
+✔ Improve batsu @done(21-12-30 13:05)
+✔ Change "Option" to "how to play" @done(21-12-30 13:05)
 
-☐ make icon
-☐ package (use ggj build script)
+ART-FINISH
+☐ fix menu for how to play
+☐ draw nice win screen
+☐ draw nice game over screen
+☐ draw nice controlls screen
+
+RELEASE
+✔ make icon @done(21-12-30 13:05)
+✔ package (use ggj build script) @done(21-12-30 13:05)
+☐ convert to browser game @started(21-12-30 13:06)
 ☐ cover/screenshots?
-☐ convert to browser game
