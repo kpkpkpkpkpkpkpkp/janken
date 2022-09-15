@@ -1,6 +1,6 @@
 JAN KEN PON ver 0.1
 
-Play at: https://kpkpkpkpkpkpkpkp.github.io/janken/janken-web/janken.html
+Play at: https://kpkpkpkpkpkpkpkp.itch.io/janken
 
 Controlls:
 z - guu (Rock)
